@@ -1,0 +1,47 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "g++.exe build active file",
+			"windows":{
+				"command": "D:\\mingw-w64-gcc-mcf_20190813_9.2.1_x64_2ad28df4ed39df4fe7942d01a074c3288f40623e\\mingw64\\bin\\g++.exe",
+				"args": [
+					"-g",
+					"${workspaceFolder}\\*.cpp",
+					"-o",
+					"${fileDirname}/bin/${fileBasenameNoExtension}.exe",
+					"-I",
+					"${fileDirname}/include",
+					"-L",
+					"${fileDirname}/lib",
+					"-lglew32",
+					"-lglfw3",
+					"-lOpenGL32"
+				],
+				"options": {
+					"cwd": "D:\\mingw-w64-gcc-mcf_20190813_9.2.1_x64_2ad28df4ed39df4fe7942d01a074c3288f40623e\\mingw64\\bin"
+				},
+			},
+			"osx":{
+				"command": "D:\\mingw-w64-gcc-mcf_20190813_9.2.1_x64_2ad28df4ed39df4fe7942d01a074c3288f40623e\\mingw64\\bin\\g++.exe",
+				"args": [
+					"-g",
+					"${file}",
+					"-o",
+					"${fileDirname}\\${fileBasenameNoExtension}.exe"
+				],
+				"options": {
+					"cwd": "D:\\mingw-w64-gcc-mcf_20190813_9.2.1_x64_2ad28df4ed39df4fe7942d01a074c3288f40623e\\mingw64\\bin"
+				},
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}
