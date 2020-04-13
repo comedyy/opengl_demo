@@ -129,20 +129,19 @@ vec3 cam_pos( 0.0f, 0.0f, 5.0f );
 bool is_in_shoot_game_state = false;
 double x_diff = 0;
 double y_diff = 0;
+double x_pre = 0;
+double y_pre = 0;
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    if(g_gl_width / 2 == xpos && g_gl_height / 2 == ypos){
-        return;
-    }
-
     if(is_in_shoot_game_state){
-        x_diff = xpos - g_gl_width / 2;
-        y_diff = ypos - g_gl_height / 2;
-
+        x_diff = xpos - x_pre;
+        y_diff = ypos - y_pre;
         x_diff *= -10;
         y_diff *= -10;
+        x_pre = xpos;
+        y_pre = ypos;
         //std::cout<< xpos << " " << ypos << " " << x_diff << " " << y_diff << std::endl;
-        glfwSetCursorPos(g_window, g_gl_width / 2, g_gl_height / 2);
+        //glfwSetCursorPos(g_window, g_gl_width / 2, g_gl_height / 2);
     }
 }
 
@@ -150,9 +149,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
     {
-        glfwSetInputMode(g_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN); 
+        glfwSetInputMode(g_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); 
         is_in_shoot_game_state = true;
-        glfwSetCursorPos(g_window, g_gl_width / 2, g_gl_height / 2);
+			  glfwGetCursorPos( g_window, &x_pre, &y_pre );
     }
 }
 
@@ -406,7 +405,7 @@ int main() {
     }
 
 
-    std::cout<<cam_yaw << " " << cam_pitch<<std::endl;
+    //std::cout<<cam_yaw << " " << cam_pitch<<std::endl;
     x_diff = 0;
     y_diff = 0;
     // put the stuff we've been drawing onto the display

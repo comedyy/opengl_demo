@@ -24,15 +24,28 @@
 				},
 			},
 			"osx":{
-				"command": "D:\\mingw-w64-gcc-mcf_20190813_9.2.1_x64_2ad28df4ed39df4fe7942d01a074c3288f40623e\\mingw64\\bin\\g++.exe",
+				"command": "g++-9",
 				"args": [
+					"-framework",
+					"Cocoa",
+					"-framework",
+					"OpenGL",
+					"-framework",
+					"IOKit",
 					"-g",
-					"${file}",
+					"${workspaceFolder}/*.cpp",
 					"-o",
-					"${fileDirname}\\${fileBasenameNoExtension}.exe"
+					"${fileDirname}/${fileBasenameNoExtension}",
+					"-I",
+					"${fileDirname}/include",
+					"-L",
+					"${fileDirname}/lib",
+					"-lGLEW",
+					"-lglfw3",
+					";${fileDirname}/${fileBasenameNoExtension}"
 				],
 				"options": {
-					"cwd": "D:\\mingw-w64-gcc-mcf_20190813_9.2.1_x64_2ad28df4ed39df4fe7942d01a074c3288f40623e\\mingw64\\bin"
+					"cwd": "${workspaceFolder}"
 				},
 			},
 			"problemMatcher": [

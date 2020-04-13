@@ -10,9 +10,11 @@
             "request": "launch",
             "windows": {
                 "program": "${fileDirname}\\bin\\${fileBasenameNoExtension}.exe",
+                "miDebuggerPath": "D:\\mingw-w64-gcc-mcf_20190813_9.2.1_x64_2ad28df4ed39df4fe7942d01a074c3288f40623e\\mingw64\\bin\\gdb.exe",
             },
             "osx": {
-                "program": "${fileDirname}\\bin\\${fileBasenameNoExtension}.exe",
+                "program": "${fileDirname}\\bin\\${fileBasenameNoExtension}",
+                "miDebuggerPath": "",
             },
             "args": [],
             "stopAtEntry": false,
@@ -20,7 +22,6 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "D:\\mingw-w64-gcc-mcf_20190813_9.2.1_x64_2ad28df4ed39df4fe7942d01a074c3288f40623e\\mingw64\\bin\\gdb.exe",
             "setupCommands": [
                 {
                     "description": "为 gdb 启用整齐打印",
