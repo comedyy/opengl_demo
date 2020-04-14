@@ -197,31 +197,37 @@ int main() {
   create_cube_map( FRONT, BACK, TOP, BOTTOM, LEFT, RIGHT, &cube_map_texture );
   /*------------------------------CREATE
    * GEOMETRY-------------------------------*/
-  GLfloat* vp       = NULL; // array of vertex points
-  GLfloat* vn       = NULL; // array of vertex normals
-  GLfloat* vt       = NULL; // array of texture coordinates
-  int g_point_count = 0;
-  ( load_obj_file( MESH_FILE, vp, vt, vn, g_point_count ) );
+  // GLfloat* vp       = NULL; // array of vertex points
+  // GLfloat* vn       = NULL; // array of vertex normals
+  // GLfloat* vt       = NULL; // array of texture coordinates
+  // int g_point_count = 0;
+  // ( load_obj_file( MESH_FILE, vp, vt, vn, g_point_count ) );
 
+  // GLuint vao;
+  // glGenVertexArrays( 1, &vao );
+  // glBindVertexArray( vao );
+
+  // GLuint points_vbo, normals_vbo;
+  // if ( NULL != vp ) {
+  //   glGenBuffers( 1, &points_vbo );
+  //   glBindBuffer( GL_ARRAY_BUFFER, points_vbo );
+  //   glBufferData( GL_ARRAY_BUFFER, 3 * g_point_count * sizeof( GLfloat ), vp, GL_STATIC_DRAW );
+  //   glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
+  //   glEnableVertexAttribArray( 0 );
+  // }
+  // if ( NULL != vn ) {
+  //   glGenBuffers( 1, &normals_vbo );
+  //   glBindBuffer( GL_ARRAY_BUFFER, normals_vbo );
+  //   glBufferData( GL_ARRAY_BUFFER, 3 * g_point_count * sizeof( GLfloat ), vn, GL_STATIC_DRAW );
+  //   glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 0, NULL );
+  //   glEnableVertexAttribArray( 1 );
+  // }
+  
   GLuint vao;
-  glGenVertexArrays( 1, &vao );
-  glBindVertexArray( vao );
-
-  GLuint points_vbo, normals_vbo;
-  if ( NULL != vp ) {
-    glGenBuffers( 1, &points_vbo );
-    glBindBuffer( GL_ARRAY_BUFFER, points_vbo );
-    glBufferData( GL_ARRAY_BUFFER, 3 * g_point_count * sizeof( GLfloat ), vp, GL_STATIC_DRAW );
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 0 );
-  }
-  if ( NULL != vn ) {
-    glGenBuffers( 1, &normals_vbo );
-    glBindBuffer( GL_ARRAY_BUFFER, normals_vbo );
-    glBufferData( GL_ARRAY_BUFFER, 3 * g_point_count * sizeof( GLfloat ), vn, GL_STATIC_DRAW );
-    glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 0, NULL );
-    glEnableVertexAttribArray( 1 );
-  }
+  mat4 bone_offset_mats;
+  int bone_count = 0;
+  int g_point_count = 0;
+  load_mesh(MESH_FILE, &vao, &g_point_count, &bone_offset_mats, &bone_count);
 
   /*-------------------------------CREATE
    * SHADERS-------------------------------*/

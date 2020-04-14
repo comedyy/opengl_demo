@@ -17,7 +17,13 @@
 #ifndef _OBJ_PARSER_H_
 #define _OBJ_PARSER_H_
 
+#include "GL/glew.h"     // include GLEW and new version of GL on Windows
+#include "maths_funcs.h" // my maths functions
+
+
 bool load_obj_file( const char *file_name, float *&points, float *&tex_coords,
 										float *&normals, int &point_count );
 
+bool load_mesh( const char *file_name, GLuint *vao, int *point_count,
+								mat4 *bone_offset_mats, int *bone_count );
 #endif
