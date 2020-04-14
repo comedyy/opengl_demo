@@ -125,6 +125,7 @@ void create_cube_map( const char* front, const char* back, const char* top, cons
 mat4 view_mat;
 mat4 proj_mat;
 vec3 cam_pos( 0.0f, 0.0f, 5.0f );
+vec2 cam_rotate(0.0f, 0.0f);
 
 bool is_in_shoot_game_state = false;
 double x_diff = 0;
@@ -144,8 +145,6 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
         y_diff *= -10;
         x_pre = xpos;
         y_pre = ypos;
-        //std::cout<< xpos << " " << ypos << " " << x_diff << " " << y_diff << std::endl;
-        //glfwSetCursorPos(g_window, g_gl_width / 2, g_gl_height / 2);
     }
 }
 
@@ -168,16 +167,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 
     if ( key == GLFW_KEY_A) {
-      right_move_diff = action == GLFW_RELEASE ? 0 : 1;
-    }
-    else if ( key == GLFW_KEY_D) {
       left_move_diff = action == GLFW_RELEASE ? 0 : 1;
     }
+    else if ( key == GLFW_KEY_D) {
+      right_move_diff = action == GLFW_RELEASE ? 0 : 1;
+    }
     else if ( key == GLFW_KEY_W) {
-      forward_move_diff = action == GLFW_RELEASE ? 0 : 1;
+      back_move_diff = action == GLFW_RELEASE ? 0 : 1;
     }
     else if ( key == GLFW_KEY_S) {
-      back_move_diff = action == GLFW_RELEASE ? 0 : 1;
+      forward_move_diff = action == GLFW_RELEASE ? 0 : 1;
     }
 }
 
@@ -330,23 +329,23 @@ int main() {
 
     if (x_diff != 0 )
     {
-        cam_yaw += x_diff * elapsed_seconds;
-        versor q_yaw = quat_from_axis_deg( cam_yaw, up.v[0], up.v[1], up.v[2] );
-        q = q_yaw * q;
+      cam_rotate.v[0] += x_diff * elapsed_seconds;
     }
 
     if (y_diff != 0)
     {
-        cam_pitch += y_diff * elapsed_seconds;
-        versor q_pitch = quat_from_axis_deg( cam_pitch, rgt.v[0], rgt.v[1], rgt.v[2] );
-        q = q_pitch * q;
+        cam_rotate.v[1] += y_diff * elapsed_seconds;
+        cam_rotate.v[1] = std::max(cam_rotate.v[1], -60.0f);
+        cam_rotate.v[1] = std::min(cam_rotate.v[1], 60.0f);
     }
 
     cam_moved = x_diff != 0 || y_diff != 0 || forward_move_diff != 0 || right_move_diff != 0 || left_move_diff != 0 || back_move_diff != 0;
 
     // update view matrix
     if ( cam_moved ) {
-      cam_heading += cam_yaw;
+      versor q_pitch = quat_from_axis_deg( cam_rotate.v[1], 1.0, 0.0, 0.0 );
+      versor q_yaw = quat_from_axis_deg( cam_rotate.v[0], 0.0, 1.0, 0.0 );
+      q =  q_yaw * q_pitch;
 
       // re-calculate local axes so can move fwd in dir cam is pointing
       R   = quat_to_mat4( q );
