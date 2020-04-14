@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "stb_image.h"
+#include <iostream>
 
 mat4 convert_assimp_matrix( aiMatrix4x4 m ) {
 	return mat4( 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
