@@ -129,6 +129,10 @@ vec3 cam_pos( 0.0f, 0.0f, 5.0f );
 bool is_in_shoot_game_state = false;
 double x_diff = 0;
 double y_diff = 0;
+double forward_move_diff = 0;
+double back_move_diff = 0;
+double right_move_diff = 0;
+double left_move_diff = 0;
 double x_pre = 0;
 double y_pre = 0;
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
@@ -161,6 +165,19 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     {
         glfwSetInputMode(g_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         is_in_shoot_game_state = false;   
+    }
+
+    if ( key == GLFW_KEY_A) {
+      right_move_diff = action == GLFW_RELEASE ? 0 : 1;
+    }
+    else if ( key == GLFW_KEY_D) {
+      left_move_diff = action == GLFW_RELEASE ? 0 : 1;
+    }
+    else if ( key == GLFW_KEY_W) {
+      forward_move_diff = action == GLFW_RELEASE ? 0 : 1;
+    }
+    else if ( key == GLFW_KEY_S) {
+      back_move_diff = action == GLFW_RELEASE ? 0 : 1;
     }
 }
 
@@ -302,36 +319,17 @@ int main() {
     vec3 move( 0.0, 0.0, 0.0 );
     float cam_yaw   = 0.0f; // y-rotation in degrees
     float cam_pitch = 0.0f;
-    float cam_roll  = 0.0;
-    if ( glfwGetKey( g_window, GLFW_KEY_A ) ) {
-      move.v[0] -= cam_speed * elapsed_seconds;
-      cam_moved = true;
-    }
-    if ( glfwGetKey( g_window, GLFW_KEY_D ) ) {
-      move.v[0] += cam_speed * elapsed_seconds;
-      cam_moved = true;
-    }
-    if ( glfwGetKey( g_window, GLFW_KEY_W ) ) {
-      move.v[2] -= cam_speed * elapsed_seconds;
-      cam_moved = true;
-    }
-    if ( glfwGetKey( g_window, GLFW_KEY_S ) ) {
-      move.v[2] += cam_speed * elapsed_seconds;
-      cam_moved = true;
+
+    if (right_move_diff != 0 || left_move_diff != 0){
+        move.v[0] += (right_move_diff -left_move_diff) * cam_speed * elapsed_seconds;
     }
 
-    // if ( glfwGetKey( g_window, GLFW_KEY_Q ) ) {
-    //   move.v[1] += cam_speed * elapsed_seconds;
-    //   cam_moved = true;
-    // }
-    // if ( glfwGetKey( g_window, GLFW_KEY_E ) ) {
-    //   move.v[1] -= cam_speed * elapsed_seconds;
-    //   cam_moved = true;
-    // }
+    if (forward_move_diff != 0 || back_move_diff != 0){
+        move.v[2] += (forward_move_diff - back_move_diff) * cam_speed * elapsed_seconds;
+    }
 
     if (x_diff != 0 )
     {
-        cam_moved    = true;
         cam_yaw += x_diff * elapsed_seconds;
         versor q_yaw = quat_from_axis_deg( cam_yaw, up.v[0], up.v[1], up.v[2] );
         q = q_yaw * q;
@@ -339,47 +337,13 @@ int main() {
 
     if (y_diff != 0)
     {
-        cam_moved    = true;
         cam_pitch += y_diff * elapsed_seconds;
         versor q_pitch = quat_from_axis_deg( cam_pitch, rgt.v[0], rgt.v[1], rgt.v[2] );
         q = q_pitch * q;
     }
 
-    // if ( glfwGetKey( g_window, GLFW_KEY_LEFT ) ) {
-    //   cam_moved    = true;
-    //   versor q_yaw = quat_from_axis_deg( cam_yaw, up.v[0], up.v[1], up.v[2] );
-    //   q            = q_yaw * q;
-    // }
-    // if ( glfwGetKey( g_window, GLFW_KEY_RIGHT ) ) {
-    //   cam_yaw -= cam_heading_speed * elapsed_seconds;
-    //   cam_moved    = true;
-    //   versor q_yaw = quat_from_axis_deg( cam_yaw, up.v[0], up.v[1], up.v[2] );
-    //   q            = q_yaw * q;
-    // }
-    // if ( glfwGetKey( g_window, GLFW_KEY_UP ) ) {
-    //   cam_pitch += cam_heading_speed * elapsed_seconds;
-    //   cam_moved      = true;
-    //   versor q_pitch = quat_from_axis_deg( cam_pitch, rgt.v[0], rgt.v[1], rgt.v[2] );
-    //   q              = q_pitch * q;
-    // }
-    // if ( glfwGetKey( g_window, GLFW_KEY_DOWN ) ) {
-    //   cam_pitch -= cam_heading_speed * elapsed_seconds;
-    //   cam_moved      = true;
-    //   versor q_pitch = quat_from_axis_deg( cam_pitch, rgt.v[0], rgt.v[1], rgt.v[2] );
-    //   q              = q_pitch * q;
-    // }
-    // if ( glfwGetKey( g_window, GLFW_KEY_Z ) ) {
-    //   cam_roll -= cam_heading_speed * elapsed_seconds;
-    //   cam_moved     = true;
-    //   versor q_roll = quat_from_axis_deg( cam_roll, fwd.v[0], fwd.v[1], fwd.v[2] );
-    //   q             = q_roll * q;
-    // }
-    // if ( glfwGetKey( g_window, GLFW_KEY_C ) ) {
-    //   cam_roll += cam_heading_speed * elapsed_seconds;
-    //   cam_moved     = true;
-    //   versor q_roll = quat_from_axis_deg( cam_roll, fwd.v[0], fwd.v[1], fwd.v[2] );
-    //   q             = q_roll * q;
-    // }
+    cam_moved = x_diff != 0 || y_diff != 0 || forward_move_diff != 0 || right_move_diff != 0 || left_move_diff != 0 || back_move_diff != 0;
+
     // update view matrix
     if ( cam_moved ) {
       cam_heading += cam_yaw;
