@@ -21,22 +21,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-#define MESH_FILE "suzanne.obj"
+#define MESH_FILE "res/baoxiang03.fbx"
 
 /* choose pure reflection or pure refraction here. */
-#define MONKEY_VERT_FILE "reflect_vs.glsl"
-#define MONKEY_FRAG_FILE "reflect_fs.glsl"
-//#define MONKEY_VERT_FILE "refract_vs.glsl"
-//#define MONKEY_FRAG_FILE "refract_fs.glsl"
+#define MONKEY_VERT_FILE "shader/unlit_texture_vs.glsl"
+#define MONKEY_FRAG_FILE "shader/unlit_texture_fs.glsl"
+// #define MONKEY_VERT_FILE "shader/reflect_vs.glsl"
+// #define MONKEY_FRAG_FILE "shader/reflect_fs.glsl"
 
-#define CUBE_VERT_FILE "cube_vs.glsl"
-#define CUBE_FRAG_FILE "cube_fs.glsl"
-#define FRONT "negz.jpg"
-#define BACK "posz.jpg"
-#define TOP "posy.jpg"
-#define BOTTOM "negy.jpg"
-#define LEFT "negx.jpg"
-#define RIGHT "posx.jpg"
+#define CUBE_VERT_FILE "shader/cube_vs.glsl"
+#define CUBE_FRAG_FILE "shader/cube_fs.glsl"
+#define FRONT "res/skybox/negz.jpg"
+#define BACK "res/skybox/posz.jpg"
+#define TOP "res/skybox/posy.jpg"
+#define BOTTOM "res/skybox/negy.jpg"
+#define LEFT "res/skybox/negx.jpg"
+#define RIGHT "res/skybox/posx.jpg"
 
 // keep track of window size for things like the viewport and the mouse cursor
 int g_gl_width      = 640;
@@ -195,39 +195,15 @@ int main() {
   GLuint cube_vao = make_big_cube();
   GLuint cube_map_texture;
   create_cube_map( FRONT, BACK, TOP, BOTTOM, LEFT, RIGHT, &cube_map_texture );
-  /*------------------------------CREATE
-   * GEOMETRY-------------------------------*/
-  // GLfloat* vp       = NULL; // array of vertex points
-  // GLfloat* vn       = NULL; // array of vertex normals
-  // GLfloat* vt       = NULL; // array of texture coordinates
-  // int g_point_count = 0;
-  // ( load_obj_file( MESH_FILE, vp, vt, vn, g_point_count ) );
-
-  // GLuint vao;
-  // glGenVertexArrays( 1, &vao );
-  // glBindVertexArray( vao );
-
-  // GLuint points_vbo, normals_vbo;
-  // if ( NULL != vp ) {
-  //   glGenBuffers( 1, &points_vbo );
-  //   glBindBuffer( GL_ARRAY_BUFFER, points_vbo );
-  //   glBufferData( GL_ARRAY_BUFFER, 3 * g_point_count * sizeof( GLfloat ), vp, GL_STATIC_DRAW );
-  //   glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, NULL );
-  //   glEnableVertexAttribArray( 0 );
-  // }
-  // if ( NULL != vn ) {
-  //   glGenBuffers( 1, &normals_vbo );
-  //   glBindBuffer( GL_ARRAY_BUFFER, normals_vbo );
-  //   glBufferData( GL_ARRAY_BUFFER, 3 * g_point_count * sizeof( GLfloat ), vn, GL_STATIC_DRAW );
-  //   glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 0, NULL );
-  //   glEnableVertexAttribArray( 1 );
-  // }
   
   GLuint vao;
   mat4 bone_offset_mats;
   int bone_count = 0;
   int g_point_count = 0;
   load_mesh(MESH_FILE, &vao, &g_point_count, &bone_offset_mats, &bone_count);
+
+  GLuint mesh_diffuse;
+  load_texture("res/baoxiang03_D.png", &mesh_diffuse);
 
   /*-------------------------------CREATE
    * SHADERS-------------------------------*/
@@ -236,6 +212,9 @@ int main() {
   int monkey_M_location = glGetUniformLocation( monkey_sp, "M" );
   int monkey_V_location = glGetUniformLocation( monkey_sp, "V" );
   int monkey_P_location = glGetUniformLocation( monkey_sp, "P" );
+	// int tex_a_location = glGetUniformLocation( monkey_sp, "basic_texture" );
+	// assert( tex_a_location > -1 );
+	// glUniform1i( tex_a_location, 0 );
 
   // cube-map shaders
   GLuint cube_sp = create_programme_from_files( CUBE_VERT_FILE, CUBE_FRAG_FILE );
@@ -273,7 +252,9 @@ int main() {
   glUniformMatrix4fv( cube_V_location, 1, GL_FALSE, R.m );
   glUniformMatrix4fv( cube_P_location, 1, GL_FALSE, proj_mat.m );
   // unique model matrix for each sphere
-  mat4 model_mat = identity_mat4();
+
+  versor q_model = quat_from_axis_deg(-90, 1.0, 0.0, 0.0 );
+  mat4 model_mat = quat_to_mat4( q_model );
 
   glEnable( GL_DEPTH_TEST );          // enable depth-testing
   glDepthFunc( GL_LESS );             // depth-testing interprets a smaller value as "closer"
@@ -315,6 +296,8 @@ int main() {
     glBindVertexArray( vao );
     glUniformMatrix4fv( monkey_M_location, 1, GL_FALSE, model_mat.m );
   	glUniformMatrix4fv( monkey_P_location, 1, GL_FALSE, proj_mat.m );
+    glActiveTexture( GL_TEXTURE0 );
+    glBindTexture( GL_TEXTURE_2D, mesh_diffuse );
     glDrawArrays( GL_TRIANGLES, 0, g_point_count );
     // update other events like input handling
     glfwPollEvents();

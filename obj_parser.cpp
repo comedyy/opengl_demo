@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "stb_image.h"
 
 mat4 convert_assimp_matrix( aiMatrix4x4 m ) {
 	return mat4( 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
@@ -112,7 +113,7 @@ bool load_mesh( const char *file_name, GLuint *vao, int *point_count,
 			printf( "bone_names[%i]=%s\n", b_i, bone_names[b_i] );
 
 			/* get [inverse] offset matrix for each bone */
-			bone_offset_mats[b_i] = convert_assimp_matrix( bone->mOffsetMatrix );
+			//bone_offset_mats[b_i] = convert_assimp_matrix( bone->mOffsetMatrix );
 
 			/* get bone weights
 			we can just assume weight is always 1.0, because we are just using 1 bone
@@ -136,25 +137,25 @@ bool load_mesh( const char *file_name, GLuint *vao, int *point_count,
 		glEnableVertexAttribArray( 0 );
 		free( points );
 	}
-	if ( mesh->HasNormals() ) {
-		GLuint vbo;
-		glGenBuffers( 1, &vbo );
-		glBindBuffer( GL_ARRAY_BUFFER, vbo );
-		glBufferData( GL_ARRAY_BUFFER, 3 * *point_count * sizeof( GLfloat ), normals,
-									GL_STATIC_DRAW );
-		glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 0, NULL );
-		glEnableVertexAttribArray( 1 );
-		free( normals );
-	}
 	if ( mesh->HasTextureCoords( 0 ) ) {
 		GLuint vbo;
 		glGenBuffers( 1, &vbo );
 		glBindBuffer( GL_ARRAY_BUFFER, vbo );
 		glBufferData( GL_ARRAY_BUFFER, 2 * *point_count * sizeof( GLfloat ), texcoords,
 									GL_STATIC_DRAW );
-		glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 0, NULL );
-		glEnableVertexAttribArray( 2 );
+		glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 0, NULL );
+		glEnableVertexAttribArray( 1 );
 		free( texcoords );
+	}
+	if ( mesh->HasNormals() ) {
+		GLuint vbo;
+		glGenBuffers( 1, &vbo );
+		glBindBuffer( GL_ARRAY_BUFFER, vbo );
+		glBufferData( GL_ARRAY_BUFFER, 3 * *point_count * sizeof( GLfloat ), normals,
+									GL_STATIC_DRAW );
+		glVertexAttribPointer( 2, 3, GL_FLOAT, GL_FALSE, 0, NULL );
+		glEnableVertexAttribArray( 2 );
+		free( normals );
 	}
 	if ( mesh->HasTangentsAndBitangents() ) {
 		// NB: could store/print tangents here
