@@ -24,8 +24,8 @@
 #define MESH_FILE "res/baoxiang03.fbx"
 
 /* choose pure reflection or pure refraction here. */
-#define MONKEY_VERT_FILE "shader/lit_texture_vs.glsl"
-#define MONKEY_FRAG_FILE "shader/lit_texture_fs.glsl"
+#define MONKEY_VERT_FILE "shader/lit_normalmap_texture_vs.glsl"
+#define MONKEY_FRAG_FILE "shader/lit_normalmap_texture_fs.glsl"
 // #define MONKEY_VERT_FILE "shader/reflect_vs.glsl"
 // #define MONKEY_FRAG_FILE "shader/reflect_fs.glsl"
 
@@ -221,26 +221,16 @@ int main() {
   int monkey_V_location = glGetUniformLocation( monkey_sp, "V" );
   int monkey_P_location = glGetUniformLocation( monkey_sp, "P" );
 
-	 GLint diffuse_map_loc, specular_map_loc, ambient_map_loc, emission_map_loc;
+	 GLint diffuse_map_loc, specular_map_loc, normal_map_loc, emission_map_loc;
 	 diffuse_map_loc = glGetUniformLocation (monkey_sp, "diffuse_map");
 	 specular_map_loc = glGetUniformLocation (monkey_sp, "specular_map");
-	 ambient_map_loc = glGetUniformLocation (monkey_sp, "ambient_map");
-	 emission_map_loc = glGetUniformLocation (monkey_sp, "emission_map");
+	 normal_map_loc = glGetUniformLocation (monkey_sp, "normal_map");
 
 	 glUseProgram (monkey_sp);
 
-   if(diffuse_map_loc > -1){
     glUniform1i (diffuse_map_loc, 0);
-   }
-   if(specular_map_loc > -1){
     glUniform1i (specular_map_loc, 1);
-   }
-   if(diffuse_map_loc > -1){
-    glUniform1i (ambient_map_loc, 2);
-   }
-   if(diffuse_map_loc > -1){
-    glUniform1i (emission_map_loc, 3);
-   }
+    glUniform1i (normal_map_loc, 2);
 
   // cube-map shaders
   GLuint cube_sp = create_programme_from_files( CUBE_VERT_FILE, CUBE_FRAG_FILE );
@@ -324,6 +314,8 @@ int main() {
     glBindTexture( GL_TEXTURE_2D, mesh_diffuse );
     glActiveTexture( GL_TEXTURE1 );
     glBindTexture( GL_TEXTURE_2D, mesh_specular );
+    glActiveTexture( GL_TEXTURE2 );
+    glBindTexture( GL_TEXTURE_2D, mesh_normal );
     glDrawArrays( GL_TRIANGLES, 0, g_point_count );
     // update other events like input handling
     glfwPollEvents();

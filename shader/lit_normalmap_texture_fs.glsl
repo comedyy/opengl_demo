@@ -26,7 +26,7 @@ vec3 La = vec3 (0.2, 0.2, 0.2); // grey ambient colour
 float specular_exponent = 100.0; // specular 'power'
 
 void main() {
-	vec3 Ia = vec3 (0.2, 0.2, 0.2);
+	vec3 Ia = vec3 (0.0, 0.0, 0.0);
 	
 	// sample the normal map and covert from 0:1 range to -1:1 range
 	vec3 normal_tan = texture (normal_map, st).rgb;
@@ -43,7 +43,7 @@ void main() {
 	vec3 reflection_tan = reflect (normalize (light_dir_tan), normal_tan);
 	float dot_prod_specular = dot (reflection_tan, normalize (view_dir_tan));
 	dot_prod_specular = max (dot_prod_specular, 0.0);
-	float specular_factor = pow (dot_prod_specular, 100.0);
+	float specular_factor = pow (dot_prod_specular, 1.0);
 	vec3 Ks = texture (specular_map, st).rgb;
 	vec3 Is = vec3 (1.0, 1.0, 1.0) * Ks * specular_factor;
 

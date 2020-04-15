@@ -24,7 +24,7 @@ void main() {
 	/* a hacky way to get the camera position out of the V matrix instead of
 	using another uniform variable */
 	vec3 cam_pos_wor = (inverse (V) * vec4 (0.0, 0.0, 0.0, 1.0)).xyz;
-	vec3 light_dir_wor = vec3 (0.0, 0.0, -1.0);
+	vec3 light_dir_wor = vec3 (-1.0, -2.0, -1.0);
 	
 	/* work out bi-tangent as cross product of normal and tangent. also multiply
 		 by the determinant, which we stored in .w to correct handedness
