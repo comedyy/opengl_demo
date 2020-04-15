@@ -32,7 +32,7 @@ mat4 convert_assimp_matrix( aiMatrix4x4 m ) {
 /* load a mesh using the assimp library */
 bool load_mesh( const char *file_name, GLuint *vao, int *point_count,
 								mat4 *bone_offset_mats, int *bone_count ) {
-	const aiScene *scene = aiImportFile( file_name, aiProcess_Triangulate );
+	const aiScene *scene = aiImportFile( file_name, aiProcess_Triangulate | aiProcess_CalcTangentSpace  );
 	if ( !scene ) {
 		fprintf( stderr, "ERROR: reading mesh %s\n", file_name );
 		return false;
@@ -47,6 +47,7 @@ bool load_mesh( const char *file_name, GLuint *vao, int *point_count,
 	/* get first mesh in file only */
 	const aiMesh *mesh = scene->mMeshes[0];
 	printf( "    %i vertices in mesh[0]\n", mesh->mNumVertices );
+	printf( "    %i face in mesh[0]\n", mesh->mNumFaces );
 
 	/* pass back number of vertex points in mesh */
 	*point_count = mesh->mNumVertices;
@@ -63,6 +64,7 @@ bool load_mesh( const char *file_name, GLuint *vao, int *point_count,
 	GLfloat *points = NULL;		 // array of vertex points
 	GLfloat *normals = NULL;	 // array of vertex normals
 	GLfloat *texcoords = NULL; // array of texture coordinates
+	GLfloat *tangents = NULL;	// array of tangents
 	GLint *bone_ids = NULL;		 // array of bone IDs
 	if ( mesh->HasPositions() ) {
 		points = (GLfloat *)malloc( *point_count * 3 * sizeof( GLfloat ) );
@@ -90,7 +92,38 @@ bool load_mesh( const char *file_name, GLuint *vao, int *point_count,
 			texcoords[i * 2 + 1] = (GLfloat)vt->y;
 		}
 	}
+	if ( mesh->HasTangentsAndBitangents() ) 
+	{
+		tangents = (GLfloat *)malloc( *point_count * 4 * sizeof( GLfloat ) );
+		for (size_t v_i = 0; v_i <  *point_count; v_i++)
+		{
+			const aiVector3D *tangent = &( mesh->mTangents[v_i] );
+			const aiVector3D *bitangent = &( mesh->mBitangents[v_i] );
+			const aiVector3D *normal = &( mesh->mNormals[v_i] );
 
+			// put the three vectors into my vec3 struct format for doing maths
+			vec3 t( tangent->x, tangent->y, tangent->z );
+			vec3 n( normal->x, normal->y, normal->z );
+			vec3 b( bitangent->x, bitangent->y, bitangent->z );
+			// orthogonalise and normalise the tangent so we can use it in something
+			// approximating a T,N,B inverse matrix
+			vec3 t_i = normalise( t - n * dot( n, t ) );
+
+			// get determinant of T,B,N 3x3 matrix by dot*cross method
+			float det = ( dot( cross( n, t ), b ) );
+			if ( det < 0.0f ) {
+				det = -1.0f;
+			} else {
+				det = 1.0f;
+			}
+
+			// push back 4d vector for inverse tangent with determinant
+			tangents[v_i * 4] = t_i.v[0];
+			tangents[v_i * 4 + 1] = t_i.v[1];
+			tangents[v_i * 4 + 2] = t_i.v[2];
+			tangents[v_i * 4 + 3] = det;
+		}
+	}
 
 	/* extract bone weights */
 	if ( mesh->HasBones() ) {
@@ -158,8 +191,16 @@ bool load_mesh( const char *file_name, GLuint *vao, int *point_count,
 		glEnableVertexAttribArray( 2 );
 		free( normals );
 	}
-	if ( mesh->HasTangentsAndBitangents() ) {
-		// NB: could store/print tangents here
+	if ( mesh->HasTangentsAndBitangents() )
+	{
+		GLuint tangents_vbo;
+		glGenBuffers( 1, &tangents_vbo );
+		glBindBuffer( GL_ARRAY_BUFFER, tangents_vbo );
+		glBufferData( GL_ARRAY_BUFFER, 4 * *point_count * sizeof( GLfloat ), tangents,
+									GL_STATIC_DRAW );
+		glVertexAttribPointer( 3, 4, GL_FLOAT, GL_FALSE, 0, NULL );
+		glEnableVertexAttribArray( 3 );
+		free(tangents);
 	}
 	if ( mesh->HasBones() ) {
 		GLuint vbo;
